@@ -1,5 +1,6 @@
 package com.example.trato_hecho.ui.viewmodel
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -19,6 +20,9 @@ data class NuevoClienteState(
     val nombreError: String? = null,
     val correo: String = "",
     val correoError: String? = null,
+    val fotoBitmap: Bitmap? = null,
+    val latitud: Double? = null, // <-- NUEVO
+    val longitud: Double? = null,
     val isFormValid: Boolean = false
 )
 
@@ -77,6 +81,15 @@ class NuevoClienteViewModel(private val repository: ClienteRepository) : ViewMod
             // Avisamos a la interfaz que se guardó con éxito
             onSuccess()
         }
+    }
+
+    // FUNCIÓN: Guarda la foto tomada
+    fun onFotoTomada(bitmap: Bitmap?) {
+        _state.update { it.copy(fotoBitmap = bitmap) }
+    }
+
+    fun onUbicacionObtenida(lat: Double, lon: Double) {
+        _state.update { it.copy(latitud = lat, longitud = lon) }
     }
 }
 

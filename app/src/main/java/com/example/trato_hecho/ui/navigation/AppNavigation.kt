@@ -13,38 +13,50 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.trato_hecho.data.local.TratoHechoDatabase
 import com.example.trato_hecho.data.repository.ClienteRepository
+import com.example.trato_hecho.ui.screens.ListaClientesScreen
 import com.example.trato_hecho.ui.screens.NuevoClienteScreen
+import com.example.trato_hecho.ui.viewmodel.ListaClientesViewModelFactory
 import com.example.trato_hecho.ui.viewmodel.NuevoClienteViewModelFactory
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.NuevoCliente.route) {
+
+    // 1. Obtenemos el contexto y la BD una sola vez para toda la navegación
+    val context = LocalContext.current
+    val database = TratoHechoDatabase.getDatabase(context)
+    val repository = ClienteRepository(database.clienteDao())
+
+    // 2. Cambiamos el inicio a la Lista de Clientes
+    NavHost(navController = navController, startDestination = Routes.Clientes.route) {
 
         composable(Routes.Home.route) {
-            // Reemplazaremos esto con HomeScreen() más adelante
             PlaceholderScreen(titulo = "Dashboard / Home")
         }
 
         composable(Routes.Clientes.route) {
-            PlaceholderScreen(titulo = "Lista de Clientes")
+            // Instanciamos el ViewModel de la Lista
+            val viewModelFactory = ListaClientesViewModelFactory(repository)
+            val viewModel: com.example.trato_hecho.ui.viewmodel.ListaClientesViewModel = viewModel(factory = viewModelFactory)
+
+            ListaClientesScreen(
+                viewModel = viewModel,
+                onNavigateToNuevoCliente = {
+                    navController.navigate(Routes.NuevoCliente.route)
+                }
+            )
         }
 
         composable(Routes.NuevoCliente.route) {
-            // 1. Obtenemos el contexto de Android
-            val context = LocalContext.current
-
-            // 2. Instanciamos la base de datos y el repositorio
-            val database = TratoHechoDatabase.getDatabase(context)
-            val repository = ClienteRepository(database.clienteDao())
-
-            // 3. Creamos el ViewModel usando nuestra Factory
+            // Instanciamos el ViewModel del Formulario
             val viewModelFactory = NuevoClienteViewModelFactory(repository)
             val viewModel: com.example.trato_hecho.ui.viewmodel.NuevoClienteViewModel = viewModel(factory = viewModelFactory)
 
-            // 4. Se lo pasamos a la pantalla
-            NuevoClienteScreen(viewModel = viewModel)
+            NuevoClienteScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() } // Agregamos esto para poder volver a la lista
+            )
         }
 
         composable(Routes.Cotizaciones.route) {

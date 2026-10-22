@@ -55,6 +55,9 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
+    // Servicios de ubicación de Google (GPS)
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
     // ViewModel y StateFlow para Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
