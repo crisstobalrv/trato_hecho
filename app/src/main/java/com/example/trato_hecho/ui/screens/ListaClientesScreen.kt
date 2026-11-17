@@ -5,7 +5,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.RequestQuote
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,27 +16,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import android.Manifest
-import android.graphics.Bitmap
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.launch
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.material.icons.filled.CameraAlt
+import com.example.trato_hecho.ui.components.TratoHechoTopBar
+import com.example.trato_hecho.ui.viewmodel.ListaClientesViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaClientesScreen(
-    viewModel: com.example.trato_hecho.ui.viewmodel.ListaClientesViewModel,
-    onNavigateToNuevoCliente: () -> Unit
+    viewModel: ListaClientesViewModel,
+    onNavigateToNuevoCliente: () -> Unit,
+    onNavigateToNuevaCotizacion: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     val clientes by viewModel.clientes.collectAsState()
 
     Scaffold(
+        topBar = {
+            TratoHechoTopBar(
+                titulo = "Gestión de Clientes",
+                onNavigateBack = onNavigateBack,
+                actions = {
+                    IconButton(onClick = onNavigateToNuevaCotizacion) {
+                        Icon(Icons.Filled.RequestQuote, contentDescription = "Ir a Cotizaciones")
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToNuevoCliente) {
                 Icon(Icons.Filled.Add, contentDescription = "Agregar Cliente")
@@ -48,10 +54,10 @@ fun ListaClientesScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Mis Clientes",
-                style = MaterialTheme.typography.headlineMedium,
+                text = "Clientes Registrados",
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             if (clientes.isEmpty()) {
@@ -81,7 +87,7 @@ fun ListaClientesScreen(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
-                                Column {
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(text = cliente.nombre, fontWeight = FontWeight.Bold)
                                     Text(text = "RUT: ${cliente.rut}", style = MaterialTheme.typography.bodyMedium)
                                     Text(text = cliente.correo, style = MaterialTheme.typography.bodySmall)

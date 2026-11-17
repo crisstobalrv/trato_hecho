@@ -1,78 +1,150 @@
 package com.example.trato_hecho.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.navArgument
 import com.example.trato_hecho.data.local.TratoHechoDatabase
 import com.example.trato_hecho.data.repository.ClienteRepository
+import com.example.trato_hecho.data.repository.CotizacionRepository
+import com.example.trato_hecho.ui.screens.HomeScreen
 import com.example.trato_hecho.ui.screens.ListaClientesScreen
+import com.example.trato_hecho.ui.screens.ListaCotizacionesScreen
+import com.example.trato_hecho.ui.screens.LoginScreen
+import com.example.trato_hecho.ui.screens.NuevaCotizacionScreen
 import com.example.trato_hecho.ui.screens.NuevoClienteScreen
+import com.example.trato_hecho.ui.viewmodel.CotizacionViewModel
+import com.example.trato_hecho.ui.viewmodel.CotizacionViewModelFactory
+import com.example.trato_hecho.ui.viewmodel.HomeViewModel
+import com.example.trato_hecho.ui.viewmodel.HomeViewModelFactory
+import com.example.trato_hecho.ui.viewmodel.ListaClientesViewModel
 import com.example.trato_hecho.ui.viewmodel.ListaClientesViewModelFactory
+import com.example.trato_hecho.ui.viewmodel.ListaCotizacionesViewModel
+import com.example.trato_hecho.ui.viewmodel.ListaCotizacionesViewModelFactory
+import com.example.trato_hecho.ui.viewmodel.LoginViewModel
+import com.example.trato_hecho.ui.viewmodel.NuevoClienteViewModel
 import com.example.trato_hecho.ui.viewmodel.NuevoClienteViewModelFactory
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
-
-    // 1. Obtenemos el contexto y la BD una sola vez para toda la navegación
     val context = LocalContext.current
+
     val database = TratoHechoDatabase.getDatabase(context)
-    val repository = ClienteRepository(database.clienteDao())
+    val clienteRepository = ClienteRepository(database.clienteDao())
+    val cotizacionRepository = CotizacionRepository(database.cotizacionDao())
 
-    // 2. Cambiamos el inicio a la Lista de Clientes
-    NavHost(navController = navController, startDestination = Routes.Clientes.route) {
+    NavHost(navController = navController, startDestination = Routes.Login.route) {
 
-        composable(Routes.Home.route) {
-            PlaceholderScreen(titulo = "Dashboard / Home")
+        // 0. Login con selector de rol
+        composable(Routes.Login.route) {
+            val viewModel: LoginViewModel = viewModel()
+
+            LoginScreen(
+                viewModel = viewModel,
+                onLoginSuccess = {
+                    navController.navigate(Routes.Home.route) {
+                        popUpTo(Routes.Login.route) { inclusive = true }
+                    }
+                }
+            )
         }
 
+        // 1. Dashboard / Home
+        composable(Routes.Home.route) {
+            val viewModelFactory = HomeViewModelFactory(clienteRepository, cotizacionRepository)
+            val viewModel: HomeViewModel = viewModel(factory = viewModelFactory)
+
+            HomeScreen(
+                viewModel = viewModel,
+                onNavigateToClientes = {
+                    navController.navigate(Routes.Clientes.route)
+                },
+                onNavigateToNuevoCliente = {
+                    navController.navigate(Routes.NuevoCliente.route)
+                },
+                onNavigateToCotizaciones = {
+                    navController.navigate(Routes.Cotizaciones.route)
+                },
+                onNavigateToNuevaCotizacion = {
+                    navController.navigate(Routes.NuevaCotizacion.route)
+                },
+                onLogout = {
+                    navController.navigate(Routes.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // 2. Lista de Clientes
         composable(Routes.Clientes.route) {
-            // Instanciamos el ViewModel de la Lista
-            val viewModelFactory = ListaClientesViewModelFactory(repository)
-            val viewModel: com.example.trato_hecho.ui.viewmodel.ListaClientesViewModel = viewModel(factory = viewModelFactory)
+            val viewModelFactory = ListaClientesViewModelFactory(clienteRepository)
+            val viewModel: ListaClientesViewModel = viewModel(factory = viewModelFactory)
 
             ListaClientesScreen(
                 viewModel = viewModel,
                 onNavigateToNuevoCliente = {
                     navController.navigate(Routes.NuevoCliente.route)
-                }
+                },
+                onNavigateToNuevaCotizacion = {
+                    navController.navigate(Routes.Cotizaciones.route)
+                },
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
+        // 3. Formulario Nuevo Cliente
         composable(Routes.NuevoCliente.route) {
-            // Instanciamos el ViewModel del Formulario
-            val viewModelFactory = NuevoClienteViewModelFactory(repository)
-            val viewModel: com.example.trato_hecho.ui.viewmodel.NuevoClienteViewModel = viewModel(factory = viewModelFactory)
+            val viewModelFactory = NuevoClienteViewModelFactory(clienteRepository)
+            val viewModel: NuevoClienteViewModel = viewModel(factory = viewModelFactory)
 
             NuevoClienteScreen(
                 viewModel = viewModel,
-                onNavigateBack = { navController.popBackStack() } // Agregamos esto para poder volver a la lista
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
+        // 4. Lista de Cotizaciones
         composable(Routes.Cotizaciones.route) {
-            PlaceholderScreen(titulo = "Lista de Cotizaciones")
+            val viewModelFactory = ListaCotizacionesViewModelFactory(cotizacionRepository)
+            val viewModel: ListaCotizacionesViewModel = viewModel(factory = viewModelFactory)
+
+            ListaCotizacionesScreen(
+                viewModel = viewModel,
+                onNavigateToNuevaCotizacion = {
+                    navController.navigate(Routes.NuevaCotizacion.route)
+                },
+                onNavigateToEditarCotizacion = { id ->
+                    navController.navigate("${Routes.NuevaCotizacion.route}?cotizacionId=$id")
+                },
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
-        composable(Routes.NuevaCotizacion.route) {
-            PlaceholderScreen(titulo = "Armar Nueva Cotización")
-        }
-    }
-}
+        // 5. Formulario Nueva / Editar Cotización
+        composable(
+            route = "${Routes.NuevaCotizacion.route}?cotizacionId={cotizacionId}",
+            arguments = listOf(
+                navArgument("cotizacionId") {
+                    type = NavType.IntType
+                    defaultValue = -1
+                }
+            )
+        ) { backStackEntry ->
+            val cotizacionId = backStackEntry.arguments?.getInt("cotizacionId") ?: -1
+            val viewModelFactory = CotizacionViewModelFactory(cotizacionRepository)
+            val viewModel: CotizacionViewModel = viewModel(factory = viewModelFactory)
 
-// Pantalla temporal para probar que la navegación no falla
-@Composable
-fun PlaceholderScreen(titulo: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = titulo)
+            NuevaCotizacionScreen(
+                viewModel = viewModel,
+                cotizacionId = cotizacionId,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.trato_hecho.ui.components.TratoHechoTopBar
 import com.example.trato_hecho.ui.components.ValidatedTextField
 import com.example.trato_hecho.ui.viewmodel.NuevoClienteViewModel
 import com.google.android.gms.location.LocationServices
@@ -82,14 +83,9 @@ fun NuevoClienteScreen(
     // --- INTERFAZ VISUAL ---
     Scaffold(
         topBar = {
-            // NUEVO: Barra superior con botón físico para retroceder
-            TopAppBar(
-                title = { Text("Registrar Cliente") },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Volver a la lista")
-                    }
-                }
+            TratoHechoTopBar(
+                titulo = "Registrar Cliente",
+                onNavigateBack = onNavigateBack
             )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }

@@ -1,6 +1,8 @@
 package com.example.trato_hecho.ui.navigation
 
 sealed class Routes(val route: String) {
+
+    object Login : Routes("login")
     object Home : Routes("home")
     object Clientes : Routes("clientes")
     object NuevoCliente : Routes("nuevo_cliente")
