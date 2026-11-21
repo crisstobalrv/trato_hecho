@@ -37,6 +37,8 @@ fun AppNavigation() {
     val database = TratoHechoDatabase.getDatabase(context)
     val clienteRepository = ClienteRepository(database.clienteDao())
     val cotizacionRepository = CotizacionRepository(database.cotizacionDao())
+    val indicadoresRepository = com.example.trato_hecho.data.repository.IndicadoresRepository()
+
 
     NavHost(navController = navController, startDestination = Routes.Login.route) {
 
@@ -56,7 +58,7 @@ fun AppNavigation() {
 
         // 1. Dashboard / Home
         composable(Routes.Home.route) {
-            val viewModelFactory = HomeViewModelFactory(clienteRepository, cotizacionRepository)
+            val viewModelFactory = HomeViewModelFactory(clienteRepository, cotizacionRepository, indicadoresRepository)
             val viewModel: HomeViewModel = viewModel(factory = viewModelFactory)
 
             HomeScreen(

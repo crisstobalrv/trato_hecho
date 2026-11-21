@@ -8,8 +8,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CurrencyExchange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -88,6 +90,68 @@ fun HomeScreen(
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Medium
                     )
+                }
+            }
+
+            // Tarjeta de API Externa (mindicador.cl vía Retrofit)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Filled.CurrencyExchange,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = "Indicadores del Día (API)",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        IconButton(
+                            onClick = { viewModel.cargarIndicadores() },
+                            enabled = !state.cargandoIndicadores
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Refresh,
+                                contentDescription = "Actualizar indicadores"
+                            )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text("Valor UF", style = MaterialTheme.typography.labelMedium)
+                            Text(state.valorUf, fontWeight = FontWeight.Bold)
+                        }
+                        Column {
+                            Text("Valor Dólar", style = MaterialTheme.typography.labelMedium)
+                            Text(state.valorDolar, fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    state.errorIndicadores?.let { errorMsg ->
+                        Text(
+                            text = errorMsg,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
 

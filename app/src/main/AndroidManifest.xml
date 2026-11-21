@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- NUEVOS PERMISOS PARA GPS -->
+    <!-- PERMISOS PARA GPS -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- PERMISOS PARA INTERNET -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"

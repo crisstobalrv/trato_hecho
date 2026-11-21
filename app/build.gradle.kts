@@ -72,4 +72,8 @@ dependencies {
     // Nota: Necesitas agregar el plugin 'com.google.devtools.ksp' en la parte superior del archivo para usar ksp
     // ksp("androidx.room:room-compiler:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+
+    // Retrofit y convertidor JSON (Gson) para API Externa y Microservicios
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 }
